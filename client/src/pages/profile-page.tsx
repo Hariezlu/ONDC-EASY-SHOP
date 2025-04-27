@@ -66,10 +66,10 @@ export default function ProfilePage() {
         <div className="bg-white shadow rounded-lg overflow-hidden">
           <div className="md:flex">
             <div className="md:w-1/3 border-b md:border-b-0 md:border-r border-gray-200">
-              <ProfileSidebar activeTab={activeTab} />
+              <ProfileSidebar activeTab={activeTab} user={user} />
             </div>
             <div className="md:w-2/3">
-              <ProfileDetails activeTab={activeTab} />
+              <ProfileDetails activeTab={activeTab} user={user} />
             </div>
           </div>
         </div>

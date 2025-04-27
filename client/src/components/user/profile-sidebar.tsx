@@ -85,8 +85,8 @@ export default function ProfileSidebar({ activeTab, user }: ProfileSidebarProps)
         <ul>
           {navItems.map((item) => (
             <li key={item.id} className="mb-2">
-              <Link href={`/profile?tab=${item.id}`}>
-                <a 
+              <Link to={`/profile?tab=${item.id}`}>
+                <div 
                   className={`flex items-center font-medium py-2 px-4 rounded-md ${
                     activeTab === item.id
                       ? "text-primary bg-blue-50" 
@@ -95,7 +95,7 @@ export default function ProfileSidebar({ activeTab, user }: ProfileSidebarProps)
                 >
                   {item.icon}
                   {item.label}
-                </a>
+                </div>
               </Link>
             </li>
           ))}

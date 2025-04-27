@@ -164,7 +164,7 @@ export default function ProfileDetails({ activeTab, user }: ProfileDetailsProps)
             <Card className="p-6 text-center">
               <p className="text-gray-500 mb-4">You haven't placed any orders yet.</p>
               <Button asChild className="bg-primary text-white">
-                <Link href="/">Start Shopping</Link>
+                <Link to="/">Start Shopping</Link>
               </Button>
             </Card>
           ) : (
@@ -231,7 +231,7 @@ export default function ProfileDetails({ activeTab, user }: ProfileDetailsProps)
         {/* Wallet Tab */}
         <TabsContent value="wallet">
           <h3 className="text-lg font-bold mb-4">Your Wallet</h3>
-          <WalletCard />
+          <WalletCard user={user} />
         </TabsContent>
         
         {/* Returns Tab */}

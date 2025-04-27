@@ -78,7 +78,7 @@ export default function WalletCard({ user }: WalletCardProps) {
           <div className="flex justify-between items-center mb-4">
             <div>
               <p className="text-gray-600 text-sm">Available Balance</p>
-              <p className="text-2xl font-bold">${user?.walletBalance.toFixed(2) || '0.00'}</p>
+              <p className="text-2xl font-bold">${(parseFloat(user?.walletBalance) || 0).toFixed(2)}</p>
             </div>
             <div>
               <Button 
