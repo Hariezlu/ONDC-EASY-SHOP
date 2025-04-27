@@ -254,13 +254,13 @@ export default function OrderDetails({ orderId }: OrderDetailsProps) {
               <div className="flex justify-between">
                 <div>
                   <h4 className="font-medium">
-                    <Link href={`/product/${order.product.id}`} className="hover:text-primary">
+                    <Link to={`/product/${order.product.id}`} className="hover:text-primary">
                       {order.product.name}
                     </Link>
                   </h4>
                   <p className="text-gray-500 text-sm">Size: {order.size} | Quantity: {order.quantity}</p>
                 </div>
-                <p className="font-medium">${order.price.toFixed(2)}</p>
+                <p className="font-medium">${(parseFloat(order.price) || 0).toFixed(2)}</p>
               </div>
               <div className="flex justify-between items-end mt-4">
                 <div>
@@ -334,7 +334,7 @@ export default function OrderDetails({ orderId }: OrderDetailsProps) {
           <h3 className="font-medium mb-2">Payment Information</h3>
           <div className="text-gray-600">
             <p>Wallet Payment</p>
-            <p>Amount: ${order.price.toFixed(2)}</p>
+            <p>Amount: ${(parseFloat(order.price) || 0).toFixed(2)}</p>
             <p className={order.status === "delivered" ? "text-green-600" : "text-yellow-600"}>
               Payment Status: {order.paid ? "Released to seller" : "Held (pending delivery)"}
             </p>
@@ -345,7 +345,7 @@ export default function OrderDetails({ orderId }: OrderDetailsProps) {
           <div className="space-y-1">
             <div className="flex justify-between">
               <span className="text-gray-600">Subtotal</span>
-              <span>${order.price.toFixed(2)}</span>
+              <span>${(parseFloat(order.price) || 0).toFixed(2)}</span>
             </div>
             <div className="flex justify-between">
               <span className="text-gray-600">Shipping</span>
@@ -353,7 +353,7 @@ export default function OrderDetails({ orderId }: OrderDetailsProps) {
             </div>
             <div className="flex justify-between">
               <span className="text-gray-600">Tax</span>
-              <span>${(order.price * 0.08).toFixed(2)}</span>
+              <span>${(parseFloat(order.price) * 0.08 || 0).toFixed(2)}</span>
             </div>
             <div className="flex justify-between font-medium pt-2 border-t border-gray-200 mt-2">
               <span>Total</span>

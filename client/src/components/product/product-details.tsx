@@ -89,7 +89,12 @@ export default function ProductDetails({ productId }: ProductDetailsProps) {
       });
     },
     onSuccess: (data) => {
-      window.location.href = "/checkout?orderId=" + data.orderId;
+      if (data && data.orderId) {
+        window.location.href = "/checkout?orderId=" + data.orderId;
+      } else {
+        // Just go to checkout page if order ID isn't returned
+        window.location.href = "/checkout";
+      }
     },
     onError: (error) => {
       toast({
@@ -159,8 +164,8 @@ export default function ProductDetails({ productId }: ProductDetailsProps) {
   }
 
   // Calculate discount percentage if there's a sale price
-  const discountPercentage = product.regularPrice && product.price < product.regularPrice
-    ? Math.round(((product.regularPrice - product.price) / product.regularPrice) * 100)
+  const discountPercentage = product.regularPrice && parseFloat(product.price) < parseFloat(product.regularPrice)
+    ? Math.round(((parseFloat(product.regularPrice) - parseFloat(product.price)) / parseFloat(product.regularPrice)) * 100)
     : null;
 
   // Available sizes (this would come from the product data in a real app)
@@ -220,7 +225,7 @@ export default function ProductDetails({ productId }: ProductDetailsProps) {
               </div>
             </div>
             <div>
-              {product.stock > 0 ? (
+              {(product.stock || 0) > 0 ? (
                 <Badge className="bg-primary text-white">IN STOCK</Badge>
               ) : (
                 <Badge variant="destructive">OUT OF STOCK</Badge>
