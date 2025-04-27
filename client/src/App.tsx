@@ -1,6 +1,4 @@
 import { Switch, Route } from "wouter";
-import { queryClient } from "./lib/queryClient";
-import { QueryClientProvider } from "@tanstack/react-query";
 import { Toaster } from "@/components/ui/toaster";
 import { TooltipProvider } from "@/components/ui/tooltip";
 import NotFound from "@/pages/not-found";
@@ -11,13 +9,13 @@ import ProductPage from "@/pages/product-page";
 import OrderPage from "@/pages/order-page";
 import CheckoutPage from "@/pages/checkout-page";
 import ProfilePage from "@/pages/profile-page";
-import Navbar from "./components/layout/navbar";
+import NavbarBasic from "./components/layout/navbar-basic";
 import Footer from "./components/layout/footer";
 
 function Router() {
   return (
     <>
-      <Navbar />
+      <NavbarBasic />
       <Switch>
         <Route path="/" component={HomePage} />
         <Route path="/auth" component={AuthPage} />
@@ -34,12 +32,10 @@ function Router() {
 
 function App() {
   return (
-    <QueryClientProvider client={queryClient}>
-      <TooltipProvider>
-        <Toaster />
-        <Router />
-      </TooltipProvider>
-    </QueryClientProvider>
+    <TooltipProvider>
+      <Toaster />
+      <Router />
+    </TooltipProvider>
   );
 }
 
