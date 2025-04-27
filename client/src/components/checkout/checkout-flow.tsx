@@ -1,6 +1,6 @@
 import { useQuery, useMutation } from "@tanstack/react-query";
 import { Product, Shop, Order, CartItem } from "@shared/schema";
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import { useToast } from "@/hooks/use-toast";
 import { apiRequest, queryClient } from "@/lib/queryClient";
 import { Button } from "@/components/ui/button";
@@ -12,7 +12,6 @@ import { Checkbox } from "@/components/ui/checkbox";
 import { Badge } from "@/components/ui/badge";
 import { ShoppingBag, CreditCard, CheckCircle, ArrowLeft, Wallet } from "lucide-react";
 import { Link, useLocation } from "wouter";
-import { useAuth } from "@/hooks/use-auth";
 import { Skeleton } from "@/components/ui/skeleton";
 
 enum CheckoutStep {
@@ -29,9 +28,26 @@ interface CheckoutState {
 }
 
 export default function CheckoutFlow() {
-  const { user } = useAuth();
   const { toast } = useToast();
   const [, navigate] = useLocation();
+  const [user, setUser] = useState<any>(null);
+  
+  // Fetch user data directly
+  const { data: userData } = useQuery({
+    queryKey: ['/api/user'],
+    onSuccess: (data: any) => {
+      setUser(data);
+    },
+    onError: () => {
+      // Redirect handled by ProtectedRoute component
+    }
+  });
+  
+  useEffect(() => {
+    if (userData) {
+      setUser(userData);
+    }
+  }, [userData]);
   
   const [step, setStep] = useState<CheckoutStep>(CheckoutStep.Shipping);
   const [checkoutState, setCheckoutState] = useState<CheckoutState>({
