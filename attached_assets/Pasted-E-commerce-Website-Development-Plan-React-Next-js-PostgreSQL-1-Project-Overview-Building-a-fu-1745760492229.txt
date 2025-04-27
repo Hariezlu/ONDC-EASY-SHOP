@@ -1,0 +1,149 @@
+E-commerce Website Development Plan (React/Next.js + PostgreSQL)
+
+1. Project Overview
+
+Building a full-stack E-commerce platform using Next.js for frontend and backend (API Routes) with PostgreSQL as the database. The platform will support user authentication, product browsing by brand, order placement with shop selection, payment holding, return management, and wallet-based refund system.
+
+2. Tech Stack
+
+Frontend & Backend: Next.js (App Router)
+
+Authentication: NextAuth.js
+
+Database: PostgreSQL
+
+ORM: Prisma
+
+Styling: TailwindCSS
+
+State Management: Context API or Redux Toolkit (optional)
+
+Payment Simulation: Internal wallet system
+
+3. Database Design (PostgreSQL + Prisma Schema)
+
+Tables:
+
+Users
+
+id (PK)
+
+name
+
+email
+
+password (hashed)
+
+wallet_balance (decimal)
+
+created_at (timestamp)
+
+Brands
+
+id (PK)
+
+name
+
+description
+
+image_url
+
+Products
+
+id (PK)
+
+name
+
+brand_id (FK)
+
+description
+
+price (decimal)
+
+stock (integer)
+
+image_url
+
+Shops
+
+id (PK)
+
+name
+
+location
+
+description
+
+Orders
+
+id (PK)
+
+user_id (FK)
+
+shop_id (FK)
+
+product_id (FK)
+
+price (decimal)
+
+delivery_date (date)
+
+return_expiry_date (date)
+
+status (enum: pending, delivered, returned, completed)
+
+paid (boolean)
+
+Returns
+
+id (PK)
+
+order_id (FK)
+
+reason
+
+status (enum: requested, approved, rejected)
+
+refund_amount (decimal)
+
+4. Features Breakdown
+
+Authentication
+
+Register/Login/Logout flow using NextAuth.js
+
+JWT session management
+
+Brand Browsing
+
+List brands on the homepage
+
+Click brand to filter and show products
+
+Product Ordering
+
+Customer selects product
+
+Customer selects shop
+
+Customer selects preferred delivery date
+
+System calculates return expiry (e.g., 7 days after delivery)
+
+Payment amount is held in customer's wallet (not released to seller immediately)
+
+Return Management
+
+Customer can request a return before return expiry
+
+Admin approves or rejects the return
+
+If approved, refund amount credited back to customer's wallet
+
+If no return requested after expiry, funds released to seller
+
+Free Return Policy
+
+Zero cost for returning within the allowed period
+
+Only hold customer's paid amount temporarily
