@@ -40,8 +40,8 @@ export default function ProductCard({ product }: ProductCardProps) {
   };
 
   // Calculate discount percentage if there's a sale price
-  const discountPercentage = product.regularPrice && product.price < product.regularPrice
-    ? Math.round(((product.regularPrice - product.price) / product.regularPrice) * 100)
+  const discountPercentage = product.regularPrice && parseFloat(product.price) < parseFloat(product.regularPrice)
+    ? Math.round(((parseFloat(product.regularPrice) - parseFloat(product.price)) / parseFloat(product.regularPrice)) * 100)
     : null;
 
   return (
@@ -87,10 +87,10 @@ export default function ProductCard({ product }: ProductCardProps) {
         </div>
         <div className="flex justify-between items-center mt-3">
           <div>
-            <span className="font-bold text-lg">${product.price.toFixed(2)}</span>
-            {product.regularPrice && product.price < product.regularPrice && (
+            <span className="font-bold text-lg">${(parseFloat(product.price) || 0).toFixed(2)}</span>
+            {product.regularPrice && parseFloat(product.price) < parseFloat(product.regularPrice) && (
               <span className="text-gray-500 text-sm line-through ml-2">
-                ${product.regularPrice.toFixed(2)}
+                ${(parseFloat(product.regularPrice) || 0).toFixed(2)}
               </span>
             )}
           </div>

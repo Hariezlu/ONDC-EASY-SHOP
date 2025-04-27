@@ -42,7 +42,7 @@ export default function CartPage() {
 
   // Calculate total
   const cartTotal = cartItems?.reduce((total, item) => {
-    return total + (Number(item.product.price) * item.quantity);
+    return total + (parseFloat(item.product.price || "0") * (item.quantity || 0));
   }, 0) || 0;
 
   // Remove from cart mutation
@@ -105,8 +105,8 @@ export default function CartPage() {
   });
 
   // Handle quantity change
-  const handleQuantityChange = (itemId: number, currentQuantity: number, change: number) => {
-    const newQuantity = currentQuantity + change;
+  const handleQuantityChange = (itemId: number, currentQuantity: number | null, change: number) => {
+    const newQuantity = (currentQuantity || 0) + change;
     
     if (newQuantity < 1) {
       // Remove item if quantity would be less than 1
@@ -229,7 +229,7 @@ export default function CartPage() {
                           </Button>
                         </div>
                         <div className="font-medium">
-                          ${(Number(item.product.price) * item.quantity).toFixed(2)}
+                          ${(parseFloat(item.product.price || "0") * (item.quantity || 0)).toFixed(2)}
                         </div>
                       </div>
                     </div>

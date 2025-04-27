@@ -357,7 +357,7 @@ export default function OrderDetails({ orderId }: OrderDetailsProps) {
             </div>
             <div className="flex justify-between font-medium pt-2 border-t border-gray-200 mt-2">
               <span>Total</span>
-              <span>${(order.price * 1.08).toFixed(2)}</span>
+              <span>${(parseFloat(order.price) * 1.08 || 0).toFixed(2)}</span>
             </div>
           </div>
         </div>
