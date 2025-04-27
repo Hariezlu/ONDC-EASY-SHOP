@@ -11,8 +11,11 @@ import BrandsPage from "@/pages/brands-page";
 import OrderPage from "@/pages/order-page";
 import CheckoutPage from "@/pages/checkout-page";
 import ProfilePage from "@/pages/profile-page";
+import CartPage from "@/pages/cart-page";
 import NavbarBasic from "./components/layout/navbar-basic";
 import Footer from "./components/layout/footer";
+import { QueryClientProvider } from "@tanstack/react-query";
+import { queryClient } from "./lib/queryClient";
 
 function Router() {
   return (
@@ -25,6 +28,7 @@ function Router() {
         <Route path="/products" component={ProductsPage} />
         <Route path="/product/:id" component={ProductPage} />
         <Route path="/order/:id" component={OrderPage} />
+        <Route path="/cart" component={CartPage} />
         <ProtectedRoute path="/checkout" component={CheckoutPage} />
         <ProtectedRoute path="/profile" component={ProfilePage} />
         <Route component={NotFound} />
@@ -36,10 +40,12 @@ function Router() {
 
 function App() {
   return (
-    <TooltipProvider>
-      <Toaster />
-      <Router />
-    </TooltipProvider>
+    <QueryClientProvider client={queryClient}>
+      <TooltipProvider>
+        <Toaster />
+        <Router />
+      </TooltipProvider>
+    </QueryClientProvider>
   );
 }
 
