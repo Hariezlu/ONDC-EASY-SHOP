@@ -1,5 +1,4 @@
-import { useEffect, useState } from "react";
-import { useAuth } from "@/hooks/use-auth";
+import { useState } from "react";
 import { useLocation } from "wouter";
 import { z } from "zod";
 import { zodResolver } from "@hookform/resolvers/zod";
@@ -14,9 +13,10 @@ import {
 } from "@/components/ui/form";
 import { Input } from "@/components/ui/input";
 import { Button } from "@/components/ui/button";
-import { Card, CardContent, CardDescription, CardFooter, CardHeader, CardTitle } from "@/components/ui/card";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { Loader2 } from "lucide-react";
+import { useToast } from "@/hooks/use-toast";
+import { apiRequest } from "@/lib/queryClient";
 
 const loginSchema = z.object({
   email: z.string().email({ message: "Please enter a valid email address" }),
@@ -37,16 +37,11 @@ type LoginFormValues = z.infer<typeof loginSchema>;
 type RegisterFormValues = z.infer<typeof registerSchema>;
 
 export default function AuthPage() {
-  const { user, loginMutation, registerMutation } = useAuth();
   const [, navigate] = useLocation();
   const [activeTab, setActiveTab] = useState<string>("login");
-
-  // Redirect if user is already authenticated
-  useEffect(() => {
-    if (user) {
-      navigate("/");
-    }
-  }, [user, navigate]);
+  const [isLoggingIn, setIsLoggingIn] = useState(false);
+  const [isRegistering, setIsRegistering] = useState(false);
+  const { toast } = useToast();
 
   const loginForm = useForm<LoginFormValues>({
     resolver: zodResolver(loginSchema),
@@ -67,18 +62,54 @@ export default function AuthPage() {
   });
 
   const onLogin = async (data: LoginFormValues) => {
-    loginMutation.mutate({
-      email: data.email,
-      password: data.password,
-    });
+    setIsLoggingIn(true);
+    try {
+      await apiRequest("POST", "/api/login", {
+        email: data.email,
+        password: data.password,
+      });
+      
+      toast({
+        title: "Login successful",
+        description: "Welcome back to ShopEase!",
+      });
+      
+      navigate("/");
+    } catch (error: any) {
+      toast({
+        title: "Login failed",
+        description: error?.message || "Please check your credentials",
+        variant: "destructive",
+      });
+    } finally {
+      setIsLoggingIn(false);
+    }
   };
 
   const onRegister = async (data: RegisterFormValues) => {
-    registerMutation.mutate({
-      name: data.name,
-      email: data.email,
-      password: data.password,
-    });
+    setIsRegistering(true);
+    try {
+      await apiRequest("POST", "/api/register", {
+        name: data.name,
+        email: data.email,
+        password: data.password,
+      });
+      
+      toast({
+        title: "Registration successful",
+        description: "Your account has been created!",
+      });
+      
+      navigate("/");
+    } catch (error: any) {
+      toast({
+        title: "Registration failed",
+        description: error?.message || "Please try again later",
+        variant: "destructive",
+      });
+    } finally {
+      setIsRegistering(false);
+    }
   };
 
   return (
@@ -131,9 +162,9 @@ export default function AuthPage() {
                   <Button
                     type="submit"
                     className="w-full bg-primary"
-                    disabled={loginMutation.isPending}
+                    disabled={isLoggingIn}
                   >
-                    {loginMutation.isPending ? (
+                    {isLoggingIn ? (
                       <Loader2 className="mr-2 h-4 w-4 animate-spin" />
                     ) : null}
                     Sign In
@@ -204,9 +235,9 @@ export default function AuthPage() {
                   <Button
                     type="submit"
                     className="w-full bg-primary"
-                    disabled={registerMutation.isPending}
+                    disabled={isRegistering}
                   >
-                    {registerMutation.isPending ? (
+                    {isRegistering ? (
                       <Loader2 className="mr-2 h-4 w-4 animate-spin" />
                     ) : null}
                     Create Account
