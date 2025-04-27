@@ -1,10 +1,63 @@
+import { useState, useEffect } from "react";
 import { Link, useLocation } from "wouter";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
-import { Search, ShoppingBag } from "lucide-react";
+import { Search, ShoppingBag, User } from "lucide-react";
+import { Badge } from "@/components/ui/badge";
+import { 
+  DropdownMenu,
+  DropdownMenuContent,
+  DropdownMenuItem,
+  DropdownMenuLabel,
+  DropdownMenuSeparator,
+  DropdownMenuTrigger
+} from "@/components/ui/dropdown-menu";
+import { apiRequest } from "@/lib/queryClient";
 
 export default function NavbarBasic() {
   const [location] = useLocation();
+  const [user, setUser] = useState<any>(null);
+  const [cartCount, setCartCount] = useState(0);
+  const [isLoading, setIsLoading] = useState(true);
+
+  // Fetch user info and cart count
+  useEffect(() => {
+    async function fetchUserAndCart() {
+      try {
+        // Try to get current user
+        const userResponse = await fetch('/api/user');
+        if (userResponse.ok) {
+          const userData = await userResponse.json();
+          setUser(userData);
+          
+          // If user is logged in, get cart count
+          const cartResponse = await fetch('/api/cart');
+          if (cartResponse.ok) {
+            const cartItems = await cartResponse.json();
+            setCartCount(cartItems.length);
+          }
+        }
+      } catch (error) {
+        console.error("Error fetching user or cart:", error);
+      } finally {
+        setIsLoading(false);
+      }
+    }
+    
+    fetchUserAndCart();
+  }, [location]); // Refetch when location changes, e.g., after adding to cart
+
+  const handleLogout = async () => {
+    try {
+      await apiRequest('POST', '/api/logout');
+      setUser(null);
+      setCartCount(0);
+      // Redirect to home page after logout
+      window.location.href = '/';
+    } catch (error) {
+      console.error("Error during logout:", error);
+    }
+  };
 
   return (
     <nav className="bg-white shadow-sm">
@@ -59,12 +112,56 @@ export default function NavbarBasic() {
                 placeholder="Search products..." 
               />
             </div>
-            <Button variant="outline" size="icon" className="rounded-full text-gray-500">
-              <ShoppingBag className="h-6 w-6" />
-            </Button>
-            <Button asChild className="ml-3" variant="default">
-              <Link href="/auth">Sign In</Link>
-            </Button>
+            
+            <Link href="/cart">
+              <Button variant="outline" size="icon" className="rounded-full text-gray-500 relative">
+                <ShoppingBag className="h-6 w-6" />
+                {cartCount > 0 && (
+                  <Badge className="absolute -top-2 -right-2 bg-primary text-white px-1.5 py-0.5 rounded-full text-xs">
+                    {cartCount}
+                  </Badge>
+                )}
+              </Button>
+            </Link>
+            
+            {user ? (
+              <DropdownMenu>
+                <DropdownMenuTrigger asChild>
+                  <Button variant="ghost" size="icon" className="ml-3 rounded-full bg-gray-100">
+                    <User className="h-5 w-5" />
+                  </Button>
+                </DropdownMenuTrigger>
+                <DropdownMenuContent align="end">
+                  <DropdownMenuLabel>
+                    <div className="font-medium text-sm">
+                      {user.name}
+                    </div>
+                    <div className="text-xs text-gray-500">
+                      {user.email}
+                    </div>
+                  </DropdownMenuLabel>
+                  <DropdownMenuSeparator />
+                  <DropdownMenuItem asChild>
+                    <Link href="/profile" className="cursor-pointer">
+                      Profile
+                    </Link>
+                  </DropdownMenuItem>
+                  <DropdownMenuItem asChild>
+                    <Link href="/orders" className="cursor-pointer">
+                      My Orders
+                    </Link>
+                  </DropdownMenuItem>
+                  <DropdownMenuSeparator />
+                  <DropdownMenuItem onClick={handleLogout} className="cursor-pointer">
+                    Logout
+                  </DropdownMenuItem>
+                </DropdownMenuContent>
+              </DropdownMenu>
+            ) : (
+              <Button asChild className="ml-3" variant="default">
+                <Link href="/auth">Sign In</Link>
+              </Button>
+            )}
           </div>
 
           <div className="-mr-2 flex items-center sm:hidden">

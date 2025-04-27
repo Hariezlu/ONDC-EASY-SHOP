@@ -199,11 +199,11 @@ export default function ProductDetails({ productId }: ProductDetailsProps) {
         </div>
         <div className="md:w-3/5 p-6">
           <div className="flex items-center mb-2">
-            <Link href="/products" className="text-primary text-sm font-medium">
+            <Link to="/products" className="text-primary text-sm font-medium">
               {product.category || "Products"}
             </Link>
             <span className="mx-2 text-gray-400">/</span>
-            <Link href={`/brands/${product.brand.id}`} className="text-primary text-sm font-medium">
+            <Link to={`/brands/${product.brand.id}`} className="text-primary text-sm font-medium">
               {product.brand.name}
             </Link>
           </div>
