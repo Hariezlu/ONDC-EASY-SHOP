@@ -96,13 +96,40 @@ export async function registerRoutes(app: Express): Promise<Server> {
         return res.status(400).json({ message: "Invalid cart item data", errors: validation.error.format() });
       }
       
+      // Make sure product exists
+      const product = await storage.getProduct(validation.data.productId);
+      if (!product) {
+        return res.status(400).json({ message: "Product not found" });
+      }
+      
+      // If shopId is not provided, set it to a default shop (1)
       const cartItemData = {
         ...validation.data,
-        userId: req.user.id
+        userId: req.user.id,
+        shopId: validation.data.shopId || 1
       };
       
       const cartItem = await storage.createCartItem(cartItemData);
       res.status(201).json(cartItem);
+    } catch (error) {
+      res.status(500).json({ message: error.message });
+    }
+  });
+
+  app.patch("/api/cart/:id", isAuthenticated, async (req, res) => {
+    try {
+      const cartItem = await storage.getCartItem(parseInt(req.params.id));
+      
+      if (!cartItem) {
+        return res.status(404).json({ message: "Cart item not found" });
+      }
+      
+      if (cartItem.userId !== req.user.id) {
+        return res.status(403).json({ message: "Not authorized to update this item" });
+      }
+      
+      const updatedCartItem = await storage.updateCartItem(cartItem.id, req.body);
+      res.json(updatedCartItem);
     } catch (error) {
       res.status(500).json({ message: error.message });
     }
