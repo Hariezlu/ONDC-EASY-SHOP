@@ -160,7 +160,7 @@ export default function CartPage() {
         <div className="text-center py-12 border rounded-lg bg-gray-50">
           <p className="text-lg text-gray-500 mb-6">Your cart is empty</p>
           <Button asChild>
-            <Link href="/products">
+            <Link to="/products">
               Continue Shopping
             </Link>
           </Button>
@@ -188,12 +188,12 @@ export default function CartPage() {
                     <div className="flex-1">
                       <div className="flex justify-between">
                         <div>
-                          <Link href={`/product/${item.product.id}`}>
+                          <Link to={`/product/${item.product.id}`}>
                             <h3 className="font-medium hover:text-primary transition-colors">
                               {item.product.name}
                             </h3>
                           </Link>
-                          <p className="text-sm text-gray-500">{item.product.brand.name}</p>
+                          <p className="text-sm text-gray-500">{item.product.brand?.name || 'Brand Unknown'}</p>
                           {item.size && <p className="text-sm text-gray-500">Size: {item.size}</p>}
                         </div>
                         <Button 

@@ -230,11 +230,11 @@ export default function ProductDetails({ productId }: ProductDetailsProps) {
 
           <div className="mb-6">
             <div className="flex items-center mb-4">
-              <span className="text-3xl font-bold mr-2">${product.price.toFixed(2)}</span>
-              {product.regularPrice && product.price < product.regularPrice && (
+              <span className="text-3xl font-bold mr-2">${(parseFloat(product.price) || 0).toFixed(2)}</span>
+              {product.regularPrice && parseFloat(product.price) < parseFloat(product.regularPrice) && (
                 <>
                   <span className="text-sm text-gray-500 line-through">
-                    ${product.regularPrice.toFixed(2)}
+                    ${(parseFloat(product.regularPrice) || 0).toFixed(2)}
                   </span>
                   <Badge className="ml-2 bg-green-100 text-green-800">
                     {discountPercentage}% OFF
