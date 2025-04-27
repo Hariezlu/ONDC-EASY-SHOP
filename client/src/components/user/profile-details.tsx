@@ -206,7 +206,7 @@ export default function ProfileDetails({ activeTab, user }: ProfileDetailsProps)
                       <div className="ml-4 flex-1">
                         <h5 className="font-medium">{order.product.name}</h5>
                         <p className="text-gray-500 text-sm">
-                          ${order.price.toFixed(2)} • Qty: {order.quantity}
+                          ${(parseFloat(order.price) || 0).toFixed(2)} • Qty: {order.quantity}
                         </p>
                         <div className="flex justify-between items-center mt-2">
                           <p className="text-gray-500 text-sm">
@@ -216,7 +216,7 @@ export default function ProfileDetails({ activeTab, user }: ProfileDetailsProps)
                             }
                           </p>
                           <Button asChild className="bg-primary text-white text-sm py-1 px-3 h-auto">
-                            <Link href={`/order/${order.id}`}>View Order</Link>
+                            <Link to={`/order/${order.id}`}>View Order</Link>
                           </Button>
                         </div>
                       </div>
