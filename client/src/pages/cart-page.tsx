@@ -42,7 +42,7 @@ export default function CartPage() {
 
   // Calculate total
   const cartTotal = cartItems?.reduce((total, item) => {
-    return total + (parseFloat(item.product.price || "0") * (item.quantity || 0));
+    return total + (parseFloat(item.product?.price || "0") * (item.quantity || 0));
   }, 0) || 0;
 
   // Remove from cart mutation
@@ -173,7 +173,7 @@ export default function CartPage() {
                 <Card key={item.id} className="overflow-hidden">
                   <div className="flex p-4">
                     <div className="w-24 h-24 bg-gray-100 rounded flex-shrink-0 mr-4">
-                      {item.product.imageUrl ? (
+                      {item.product?.imageUrl ? (
                         <img 
                           src={item.product.imageUrl} 
                           alt={item.product.name} 
@@ -188,12 +188,12 @@ export default function CartPage() {
                     <div className="flex-1">
                       <div className="flex justify-between">
                         <div>
-                          <Link to={`/product/${item.product.id}`}>
+                          <Link to={`/product/${item.product?.id || 0}`}>
                             <h3 className="font-medium hover:text-primary transition-colors">
-                              {item.product.name}
+                              {item.product?.name || 'Product Unknown'}
                             </h3>
                           </Link>
-                          <p className="text-sm text-gray-500">{item.product.brand?.name || 'Brand Unknown'}</p>
+                          <p className="text-sm text-gray-500">{item.product?.brand?.name || 'Brand Unknown'}</p>
                           {item.size && <p className="text-sm text-gray-500">Size: {item.size}</p>}
                         </div>
                         <Button 
@@ -229,7 +229,7 @@ export default function CartPage() {
                           </Button>
                         </div>
                         <div className="font-medium">
-                          ${(parseFloat(item.product.price || "0") * (item.quantity || 0)).toFixed(2)}
+                          ${(parseFloat(item.product?.price || "0") * (item.quantity || 0)).toFixed(2)}
                         </div>
                       </div>
                     </div>
