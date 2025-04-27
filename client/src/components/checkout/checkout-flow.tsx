@@ -1,5 +1,5 @@
 import { useQuery, useMutation } from "@tanstack/react-query";
-import { Product, Shop, Order, CartItem } from "@shared/schema";
+import { Product, Shop, Order, CartItem, User } from "@shared/schema";
 import { useState, useEffect } from "react";
 import { useToast } from "@/hooks/use-toast";
 import { apiRequest, queryClient } from "@/lib/queryClient";
@@ -33,14 +33,8 @@ export default function CheckoutFlow() {
   const [user, setUser] = useState<any>(null);
   
   // Fetch user data directly
-  const { data: userData } = useQuery({
-    queryKey: ['/api/user'],
-    onSuccess: (data: any) => {
-      setUser(data);
-    },
-    onError: () => {
-      // Redirect handled by ProtectedRoute component
-    }
+  const { data: userData } = useQuery<User>({
+    queryKey: ['/api/user']
   });
   
   useEffect(() => {
@@ -161,13 +155,17 @@ export default function CheckoutFlow() {
   }
 
   // Calculate order totals
-  const subtotal = cartItems.reduce((total, item) => total + (item.price * item.quantity), 0);
+  const subtotal = cartItems.reduce((total, item) => {
+    const price = parseFloat(item.product?.price || "0");
+    const quantity = item.quantity || 1;
+    return total + (price * quantity);
+  }, 0);
   const shipping = checkoutState.deliveryOption === "express" ? 9.99 : 0;
   const tax = subtotal * 0.08; // 8% tax
   const total = subtotal + shipping + tax;
 
   // Check if user has enough wallet balance
-  const hasEnoughBalance = user ? (user.walletBalance >= total) : false;
+  const hasEnoughBalance = user ? (parseFloat(user.walletBalance || '0') >= total) : false;
 
   const continueToPayment = () => {
     if (!checkoutState.addressId) {
@@ -344,15 +342,15 @@ export default function CheckoutFlow() {
                               <p className="text-gray-600 text-sm mt-1">Shop: {item.shop.name}</p>
                             </div>
                             <div className="text-right">
-                              <p className="font-medium">${item.price.toFixed(2)}</p>
-                              <p className="text-gray-600 text-sm">Qty: {item.quantity}</p>
+                              <p className="font-medium">${parseFloat(item.product?.price || "0").toFixed(2)}</p>
+                              <p className="text-gray-600 text-sm">Qty: {item.quantity || 1}</p>
                             </div>
                           </div>
                           <div className="mt-2">
                             <label className="flex items-center text-sm">
                               <Input 
                                 type="date" 
-                                value={item.deliveryDate} 
+                                defaultValue={item.deliveryDate ? new Date(item.deliveryDate).toISOString().split("T")[0] : undefined}
                                 onChange={(e) => {/* This would update the delivery date in a real app */}}
                                 min={new Date().toISOString().split("T")[0]} 
                                 className="border-gray-300 rounded-md text-sm mr-2" 
@@ -402,7 +400,7 @@ export default function CheckoutFlow() {
                       <div className="mt-2 ml-7">
                         <div className="flex justify-between items-center">
                           <p className="text-gray-600">Available Balance:</p>
-                          <p className="font-medium">${user?.walletBalance.toFixed(2) || '0.00'}</p>
+                          <p className="font-medium">${parseFloat(user?.walletBalance || '0').toFixed(2)}</p>
                         </div>
                         {!hasEnoughBalance && (
                           <>
@@ -554,10 +552,10 @@ export default function CheckoutFlow() {
                                 <p className="text-gray-500 text-xs">Size: {item.size} | Qty: {item.quantity}</p>
                                 <p className="text-gray-500 text-xs">Shop: {item.shop.name}</p>
                                 <p className="text-gray-500 text-xs">
-                                  Delivery Date: {new Date(item.deliveryDate).toLocaleDateString()}
+                                  Delivery Date: {item.deliveryDate ? new Date(item.deliveryDate).toLocaleDateString() : 'Not specified'}
                                 </p>
                               </div>
-                              <p className="font-medium">${(item.price * item.quantity).toFixed(2)}</p>
+                              <p className="font-medium">${(parseFloat(item.product?.price || "0") * (item.quantity || 1)).toFixed(2)}</p>
                             </div>
                           </div>
                         </div>
@@ -629,7 +627,7 @@ export default function CheckoutFlow() {
                       <Wallet className="h-5 w-5 text-primary mr-2" />
                       <span className="font-medium">Wallet Balance</span>
                     </div>
-                    <span className="font-medium">${user?.walletBalance.toFixed(2) || '0.00'}</span>
+                    <span className="font-medium">${parseFloat(user?.walletBalance || '0').toFixed(2)}</span>
                   </div>
                   {!hasEnoughBalance && (
                     <p className="text-red-500 text-sm">
