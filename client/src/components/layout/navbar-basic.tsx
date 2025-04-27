@@ -142,12 +142,12 @@ export default function NavbarBasic() {
                   </DropdownMenuLabel>
                   <DropdownMenuSeparator />
                   <DropdownMenuItem asChild>
-                    <Link href="/profile" className="cursor-pointer">
+                    <Link to="/profile" className="cursor-pointer">
                       Profile
                     </Link>
                   </DropdownMenuItem>
                   <DropdownMenuItem asChild>
-                    <Link href="/orders" className="cursor-pointer">
+                    <Link to="/orders" className="cursor-pointer">
                       My Orders
                     </Link>
                   </DropdownMenuItem>
@@ -159,7 +159,7 @@ export default function NavbarBasic() {
               </DropdownMenu>
             ) : (
               <Button asChild className="ml-3" variant="default">
-                <Link href="/auth">Sign In</Link>
+                <Link to="/auth">Sign In</Link>
               </Button>
             )}
           </div>
