@@ -1,4 +1,3 @@
-import { useAuth } from "@/hooks/use-auth";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
@@ -6,17 +5,17 @@ import { Card, CardContent } from "@/components/ui/card";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import WalletCard from "./wallet-card";
 import { useQuery } from "@tanstack/react-query";
-import { Order } from "@shared/schema";
+import { Order, User } from "@shared/schema";
 import { Link } from "wouter";
 import { Badge } from "@/components/ui/badge";
 import { Skeleton } from "@/components/ui/skeleton";
 
 interface ProfileDetailsProps {
   activeTab: string;
+  user: User;
 }
 
-export default function ProfileDetails({ activeTab }: ProfileDetailsProps) {
-  const { user } = useAuth();
+export default function ProfileDetails({ activeTab, user }: ProfileDetailsProps) {
 
   // Fetch user's orders
   const { data: orders, isLoading: ordersLoading } = useQuery<Order[]>({

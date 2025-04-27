@@ -1,4 +1,3 @@
-import { useAuth } from "@/hooks/use-auth";
 import { Card, CardContent } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
@@ -6,10 +5,11 @@ import { Label } from "@/components/ui/label";
 import { useMutation } from "@tanstack/react-query";
 import { apiRequest, queryClient } from "@/lib/queryClient";
 import { useToast } from "@/hooks/use-toast";
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import { ArrowUpRight, ArrowDownRight } from "lucide-react";
 import { useQuery } from "@tanstack/react-query";
 import { Skeleton } from "@/components/ui/skeleton";
+import { User } from "@shared/schema";
 
 interface Transaction {
   id: number;
@@ -19,8 +19,11 @@ interface Transaction {
   date: string;
 }
 
-export default function WalletCard() {
-  const { user } = useAuth();
+interface WalletCardProps {
+  user: User;
+}
+
+export default function WalletCard({ user }: WalletCardProps) {
   const { toast } = useToast();
   const [amount, setAmount] = useState("");
 

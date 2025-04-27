@@ -1,14 +1,33 @@
 import { useEffect, useState } from "react";
 import { useLocation } from "wouter";
-import { useAuth } from "@/hooks/use-auth";
 import ProfileSidebar from "@/components/user/profile-sidebar";
 import ProfileDetails from "@/components/user/profile-details";
 import TabNavigation from "@/components/layout/tab-navigation";
+import { Loader2 } from "lucide-react";
 
 export default function ProfilePage() {
-  const { user } = useAuth();
+  const [user, setUser] = useState(null);
+  const [isLoading, setIsLoading] = useState(true);
   const [location] = useLocation();
   const [activeTab, setActiveTab] = useState("account");
+  
+  useEffect(() => {
+    async function fetchUser() {
+      try {
+        const response = await fetch('/api/user');
+        if (response.ok) {
+          const userData = await response.json();
+          setUser(userData);
+        }
+      } catch (error) {
+        console.error("Error fetching user:", error);
+      } finally {
+        setIsLoading(false);
+      }
+    }
+    
+    fetchUser();
+  }, []);
 
   const tabs = [
     { id: "home", label: "Home", path: "/" },
@@ -26,7 +45,19 @@ export default function ProfilePage() {
     }
   }, [location]);
 
-  if (!user) return null;
+  if (isLoading) {
+    return (
+      <div className="flex items-center justify-center min-h-screen">
+        <Loader2 className="h-8 w-8 animate-spin text-primary" />
+      </div>
+    );
+  }
+  
+  if (!user) {
+    // Redirect to auth page if no user is found
+    window.location.href = '/auth';
+    return null;
+  }
 
   return (
     <div>

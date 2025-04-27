@@ -1,4 +1,3 @@
-import { useAuth } from "@/hooks/use-auth";
 import { Card } from "@/components/ui/card";
 import { 
   UserRound, 
@@ -12,13 +11,14 @@ import { Avatar, AvatarFallback } from "@/components/ui/avatar";
 import { Button } from "@/components/ui/button";
 import { Link, useLocation } from "wouter";
 import { Badge } from "@/components/ui/badge";
+import { User } from "@shared/schema";
 
 interface ProfileSidebarProps {
   activeTab: string;
+  user: User;
 }
 
-export default function ProfileSidebar({ activeTab }: ProfileSidebarProps) {
-  const { user, logoutMutation } = useAuth();
+export default function ProfileSidebar({ activeTab, user }: ProfileSidebarProps) {
   const [, navigate] = useLocation();
 
   if (!user) return null;
@@ -31,9 +31,21 @@ export default function ProfileSidebar({ activeTab }: ProfileSidebarProps) {
       .toUpperCase();
   };
 
-  const handleLogout = () => {
-    logoutMutation.mutate();
-    navigate("/");
+  const handleLogout = async () => {
+    try {
+      const response = await fetch('/api/logout', {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json'
+        }
+      });
+      
+      if (response.ok) {
+        navigate("/auth");
+      }
+    } catch (error) {
+      console.error("Error logging out:", error);
+    }
   };
 
   const navItems = [
