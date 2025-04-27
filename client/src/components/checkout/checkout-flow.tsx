@@ -339,7 +339,7 @@ export default function CheckoutFlow() {
                             <div>
                               <h4 className="font-medium">{item.product.name}</h4>
                               <p className="text-gray-500 text-sm">Size: {item.size}</p>
-                              <p className="text-gray-600 text-sm mt-1">Shop: {item.shop.name}</p>
+                              <p className="text-gray-600 text-sm mt-1">Shop: {item.shop?.name || 'Unknown'}</p>
                             </div>
                             <div className="text-right">
                               <p className="font-medium">${parseFloat(item.product?.price || "0").toFixed(2)}</p>
@@ -550,7 +550,7 @@ export default function CheckoutFlow() {
                               <div>
                                 <h5 className="font-medium">{item.product.name}</h5>
                                 <p className="text-gray-500 text-xs">Size: {item.size} | Qty: {item.quantity}</p>
-                                <p className="text-gray-500 text-xs">Shop: {item.shop.name}</p>
+                                <p className="text-gray-500 text-xs">Shop: {item.shop?.name || 'Unknown'}</p>
                                 <p className="text-gray-500 text-xs">
                                   Delivery Date: {item.deliveryDate ? new Date(item.deliveryDate).toLocaleDateString() : 'Not specified'}
                                 </p>
