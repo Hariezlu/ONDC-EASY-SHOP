@@ -516,7 +516,7 @@ export default function CheckoutFlow() {
                       {checkoutState.paymentMethod === "wallet" ? (
                         <>
                           <Wallet className="h-4 w-4 mr-2 text-primary" />
-                          <span>Wallet Payment (Balance: ${user?.walletBalance.toFixed(2) || '0.00'})</span>
+                          <span>Wallet Payment (Balance: ${parseFloat(user?.walletBalance || '0').toFixed(2)})</span>
                         </>
                       ) : (
                         <>
