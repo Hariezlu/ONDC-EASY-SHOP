@@ -129,11 +129,38 @@ export class MemStorage implements IStorage {
     
     // Create products
     const productDetails = [
-      { name: 'Air Max 270', brand: 'Nike', price: 120, isNew: true },
-      { name: 'Ultraboost', brand: 'Adidas', price: 140, regularPrice: 180 },
-      { name: 'RS-X Toys', brand: 'Puma', price: 105 },
-      { name: 'Slim Fit Shirt', brand: 'H&M', price: 29.99 },
-      { name: 'Casual Pants', brand: 'Zara', price: 49.99 }
+      { 
+        name: 'Air Max 270', 
+        brand: 'Nike', 
+        price: 120, 
+        isNew: true,
+        imageUrl: 'https://static.nike.com/a/images/t_PDP_1280_v1/f_auto,q_auto:eco/skwgyqrbfzhu6uyeh0gg/air-max-270-shoes-VtH7Lr.png'
+      },
+      { 
+        name: 'Ultraboost', 
+        brand: 'Adidas', 
+        price: 140, 
+        regularPrice: 180,
+        imageUrl: 'https://assets.adidas.com/images/h_840,f_auto,q_auto,fl_lossy,c_fill,g_auto/cde9362069924146aca6ad130114a6c6_9366/Ultraboost_22_Shoes_Black_GZ0127_01_standard.jpg'
+      },
+      { 
+        name: 'RS-X Toys', 
+        brand: 'Puma', 
+        price: 105,
+        imageUrl: 'https://images.puma.com/image/upload/f_auto,q_auto,b_rgb:fafafa,w_2000,h_2000/global/369449/24/sv01/fnd/PNA/fmt/png/RS-X-Toys-Men%27s-Sneakers'
+      },
+      { 
+        name: 'Slim Fit Shirt', 
+        brand: 'H&M', 
+        price: 29.99,
+        imageUrl: 'https://lp2.hm.com/hmgoepprod?set=quality%5B79%5D%2Csource%5B%2F00%2F77%2F0077747b4ae6c8539d2999e95b31e50a990c495b.jpg%5D%2Corigin%5Bdam%5D%2Ccategory%5Bmen_shirts_longsleeved%5D%2Ctype%5BDESCRIPTIVESTILLLIFE%5D%2Cres%5Bm%5D%2Chmver%5B2%5D&call=url[file:/product/main]'
+      },
+      { 
+        name: 'Casual Pants', 
+        brand: 'Zara', 
+        price: 49.99,
+        imageUrl: 'https://static.zara.net/photos///2023/I/0/2/p/6861/333/802/2/w/560/6861333802_2_1_1.jpg?ts=1689251634732'
+      }
     ];
     
     for (const detail of productDetails) {
@@ -148,7 +175,7 @@ export class MemStorage implements IStorage {
           stock: 100,
           category: 'Fashion',
           isNew: detail.isNew || false,
-          imageUrl: ''
+          imageUrl: detail.imageUrl || ''
         });
         
         // Update product count in brand
