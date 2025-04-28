@@ -1,4 +1,4 @@
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import { useLocation } from "wouter";
 import { z } from "zod";
 import { zodResolver } from "@hookform/resolvers/zod";
@@ -16,7 +16,7 @@ import { Button } from "@/components/ui/button";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { Loader2 } from "lucide-react";
 import { useToast } from "@/hooks/use-toast";
-import { apiRequest } from "@/lib/queryClient";
+import { useAuth } from "@/hooks/use-auth";
 
 const loginSchema = z.object({
   username: z.string().min(4, { message: "Username or email must be at least 4 characters" }),
@@ -40,9 +40,15 @@ type RegisterFormValues = z.infer<typeof registerSchema>;
 export default function AuthPage() {
   const [, navigate] = useLocation();
   const [activeTab, setActiveTab] = useState<string>("login");
-  const [isLoggingIn, setIsLoggingIn] = useState(false);
-  const [isRegistering, setIsRegistering] = useState(false);
   const { toast } = useToast();
+  const { user, isLoading, loginMutation, registerMutation } = useAuth();
+  
+  // Redirect if user is already logged in
+  useEffect(() => {
+    if (user) {
+      navigate("/");
+    }
+  }, [user, navigate]);
 
   const loginForm = useForm<LoginFormValues>({
     resolver: zodResolver(loginSchema),
@@ -64,55 +70,19 @@ export default function AuthPage() {
   });
 
   const onLogin = async (data: LoginFormValues) => {
-    setIsLoggingIn(true);
-    try {
-      await apiRequest("POST", "/api/login", {
-        username: data.username,
-        password: data.password,
-      });
-      
-      toast({
-        title: "Login successful",
-        description: "Welcome back to ShopEase!",
-      });
-      
-      navigate("/");
-    } catch (error: any) {
-      toast({
-        title: "Login failed",
-        description: error?.message || "Please check your credentials",
-        variant: "destructive",
-      });
-    } finally {
-      setIsLoggingIn(false);
-    }
+    loginMutation.mutate({
+      username: data.username,
+      password: data.password,
+    });
   };
 
   const onRegister = async (data: RegisterFormValues) => {
-    setIsRegistering(true);
-    try {
-      await apiRequest("POST", "/api/register", {
-        name: data.name,
-        email: data.email,
-        username: data.username,
-        password: data.password,
-      });
-      
-      toast({
-        title: "Registration successful",
-        description: "Your account has been created!",
-      });
-      
-      navigate("/");
-    } catch (error: any) {
-      toast({
-        title: "Registration failed",
-        description: error?.message || "Please try again later",
-        variant: "destructive",
-      });
-    } finally {
-      setIsRegistering(false);
-    }
+    registerMutation.mutate({
+      name: data.name,
+      email: data.email,
+      username: data.username,
+      password: data.password,
+    });
   };
 
   return (
@@ -165,9 +135,9 @@ export default function AuthPage() {
                   <Button
                     type="submit"
                     className="w-full bg-primary"
-                    disabled={isLoggingIn}
+                    disabled={loginMutation.isPending}
                   >
-                    {isLoggingIn ? (
+                    {loginMutation.isPending ? (
                       <Loader2 className="mr-2 h-4 w-4 animate-spin" />
                     ) : null}
                     Sign In
@@ -252,9 +222,9 @@ export default function AuthPage() {
                   <Button
                     type="submit"
                     className="w-full bg-primary"
-                    disabled={isRegistering}
+                    disabled={registerMutation.isPending}
                   >
-                    {isRegistering ? (
+                    {registerMutation.isPending ? (
                       <Loader2 className="mr-2 h-4 w-4 animate-spin" />
                     ) : null}
                     Create Account

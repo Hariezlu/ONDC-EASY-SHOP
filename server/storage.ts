@@ -108,19 +108,47 @@ export class MemStorage implements IStorage {
 
   // Initialize sample data for development
   private async initSampleData() {
-    // Create brands
-    const brandNames = ['Nike', 'Adidas', 'Puma', 'H&M', 'Zara'];
-    for (const name of brandNames) {
+    // Create brands with logos
+    const brandData = [
+      { 
+        name: 'Nike', 
+        description: 'Nike is a popular athletic footwear and apparel brand.',
+        logo: '/brand-logos/nike.svg'
+      },
+      { 
+        name: 'Adidas', 
+        description: 'Adidas is a global sportswear brand known for quality athletic products.',
+        logo: '/brand-logos/adidas.svg'
+      },
+      { 
+        name: 'Puma', 
+        description: 'Puma designs and manufactures athletic and casual footwear, apparel and accessories.',
+        logo: '/brand-logos/puma.svg'
+      },
+      { 
+        name: 'H&M', 
+        description: 'H&M is a Swedish multinational clothing retailer known for fast fashion.',
+        logo: '/brand-logos/hm.svg'
+      },
+      { 
+        name: 'Zara', 
+        description: 'Zara is a Spanish clothing and accessories retailer with trendy fashion items.',
+        logo: '/brand-logos/zara.svg'
+      }
+    ];
+    
+    for (const brand of brandData) {
       await this.createBrand({
-        name,
-        description: `${name} is a popular brand offering quality products.`,
-        logo: '',
+        ...brand,
         productCount: 0
       });
     }
     
     // Create shops
     const shopNames = ['Downtown Store', 'Mall of America', 'Sports Center', 'Factory Outlet', 'Online Shop'];
+    // Get all brand names from the brand data we defined above
+    const brandNames = brandData.map(b => b.name);
+    
     for (const name of shopNames) {
       await this.createShop({
         name: `${brandNames[Math.floor(Math.random() * brandNames.length)]} ${name}`,
