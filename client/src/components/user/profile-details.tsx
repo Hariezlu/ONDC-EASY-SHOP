@@ -20,11 +20,15 @@ export default function ProfileDetails({ activeTab, user }: ProfileDetailsProps)
   // Fetch user's orders
   const { data: orders, isLoading: ordersLoading } = useQuery<Order[]>({
     queryKey: ["/api/orders"],
+    refetchInterval: 3000, // Refetch every 3 seconds
+    refetchOnWindowFocus: true, // Refetch when window gets focus
   });
 
   // Fetch user's returns
   const { data: returns, isLoading: returnsLoading } = useQuery({
     queryKey: ["/api/returns"],
+    refetchInterval: 3000,
+    refetchOnWindowFocus: true,
     queryFn: async () => {
       return [];
     },

@@ -38,6 +38,8 @@ export default function OrderDetails({ orderId }: OrderDetailsProps) {
 
   const { data: order, isLoading, error, refetch } = useQuery<Order>({
     queryKey: [`/api/orders/${orderId}`],
+    refetchInterval: 3000, // Refetch every 3 seconds
+    refetchOnWindowFocus: true, // Refetch when window gets focus
   });
 
   const cancelOrderMutation = useMutation({

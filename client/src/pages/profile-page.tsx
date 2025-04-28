@@ -12,6 +12,7 @@ export default function ProfilePage() {
   const [activeTab, setActiveTab] = useState("account");
   
   useEffect(() => {
+    // Set up polling for user data
     async function fetchUser() {
       try {
         const response = await fetch('/api/user');
@@ -26,7 +27,14 @@ export default function ProfilePage() {
       }
     }
     
+    // Initial fetch
     fetchUser();
+    
+    // Set up polling every 3 seconds
+    const intervalId = setInterval(fetchUser, 3000);
+    
+    // Clean up interval on component unmount
+    return () => clearInterval(intervalId);
   }, []);
 
   const tabs = [

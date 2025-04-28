@@ -30,6 +30,8 @@ export default function WalletCard({ user }: WalletCardProps) {
   // Fetch wallet transactions
   const { data: transactions, isLoading } = useQuery<Transaction[]>({
     queryKey: ["/api/wallet/transactions"],
+    refetchInterval: 3000, // Refetch every 3 seconds
+    refetchOnWindowFocus: true, // Refetch when window gets focus
     queryFn: async () => {
       // This is a mock function since we don't have actual API implemented
       return [];
