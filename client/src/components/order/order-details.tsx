@@ -5,7 +5,7 @@ import { useToast } from "@/hooks/use-toast";
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent } from "@/components/ui/card";
-import { Printer, CheckCircle } from "lucide-react";
+import { Printer, CheckCircle, Settings } from "lucide-react";
 import {
   Dialog,
   DialogContent,
@@ -15,6 +15,13 @@ import {
   DialogTitle,
   DialogTrigger,
 } from "@/components/ui/dialog";
+import {
+  Select,
+  SelectContent,
+  SelectItem,
+  SelectTrigger,
+  SelectValue,
+} from "@/components/ui/select";
 import { Textarea } from "@/components/ui/textarea";
 import { useState } from "react";
 import { Link } from "wouter";
@@ -48,6 +55,26 @@ export default function OrderDetails({ orderId }: OrderDetailsProps) {
       toast({
         title: "Error",
         description: `Failed to cancel order: ${error.message}`,
+        variant: "destructive",
+      });
+    },
+  });
+  
+  const updateStatusMutation = useMutation({
+    mutationFn: async (status: string) => {
+      await apiRequest("PATCH", `/api/orders/${orderId}/status`, { status });
+    },
+    onSuccess: () => {
+      toast({
+        title: "Status updated",
+        description: "Order status has been updated successfully.",
+      });
+      refetch();
+    },
+    onError: (error) => {
+      toast({
+        title: "Error",
+        description: `Failed to update order status: ${error.message}`,
         variant: "destructive",
       });
     },
@@ -378,7 +405,56 @@ export default function OrderDetails({ orderId }: OrderDetailsProps) {
             </Button>
           )}
         </div>
-        <div>
+        <div className="flex items-center">
+          {/* Admin Status Control */}
+          <Dialog>
+            <DialogTrigger asChild>
+              <Button variant="outline" className="mr-3">
+                <Settings className="h-4 w-4 mr-2" />
+                Update Status
+              </Button>
+            </DialogTrigger>
+            <DialogContent>
+              <DialogHeader>
+                <DialogTitle>Update Order Status</DialogTitle>
+                <DialogDescription>
+                  Change the status of this order. This will update the status in real-time.
+                </DialogDescription>
+              </DialogHeader>
+              <div className="py-4">
+                <Select
+                  defaultValue={order.status}
+                  onValueChange={(value) => updateStatusMutation.mutate(value)}
+                >
+                  <SelectTrigger>
+                    <SelectValue placeholder="Select new status" />
+                  </SelectTrigger>
+                  <SelectContent>
+                    <SelectItem value="pending">Pending</SelectItem>
+                    <SelectItem value="processing">Processing</SelectItem>
+                    <SelectItem value="shipped">Shipped</SelectItem>
+                    <SelectItem value="delivered">Delivered</SelectItem>
+                    <SelectItem value="completed">Completed</SelectItem>
+                    <SelectItem value="cancelled">Cancelled</SelectItem>
+                    <SelectItem value="returned">Returned</SelectItem>
+                  </SelectContent>
+                </Select>
+                <p className="mt-2 text-xs text-gray-500">
+                  Current status: <span className="font-medium">{order.status.toUpperCase()}</span>
+                </p>
+              </div>
+              <DialogFooter>
+                <Button 
+                  variant="outline" 
+                  onClick={() => {}}
+                  className="w-full sm:w-auto"
+                >
+                  Close
+                </Button>
+              </DialogFooter>
+            </DialogContent>
+          </Dialog>
+          
           <Button variant="ghost" className="text-gray-600 hover:text-gray-800">
             <Printer className="h-5 w-5 mr-1" />
             Print Order

@@ -371,6 +371,19 @@ export class MemStorage implements IStorage {
     return { ...order, user, product, shop };
   }
   
+  async updateOrder(id: number, orderData: Partial<Order>): Promise<Order | undefined> {
+    const order = this.orders.get(id);
+    if (!order) return undefined;
+    
+    const updatedOrder = { ...order, ...orderData };
+    this.orders.set(id, updatedOrder);
+    
+    const user = this.users.get(updatedOrder.userId) as User;
+    const product = this.getProduct(updatedOrder.productId) as Product;
+    const shop = this.shops.get(updatedOrder.shopId) as Shop;
+    return { ...updatedOrder, user, product, shop };
+  }
+  
   async updateOrderStatus(id: number, status: string): Promise<Order | undefined> {
     const order = this.orders.get(id);
     if (!order) return undefined;
