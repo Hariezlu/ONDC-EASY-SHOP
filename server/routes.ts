@@ -280,6 +280,40 @@ export async function registerRoutes(app: Express): Promise<Server> {
       res.status(500).json({ message: error.message });
     }
   });
+  
+  // New endpoint for admin to update order status
+  app.patch("/api/orders/:id/status", isAuthenticated, async (req, res) => {
+    try {
+      const { status } = req.body;
+      const orderId = parseInt(req.params.id);
+      
+      if (!status || !['pending', 'processing', 'shipped', 'delivered', 'completed', 'cancelled'].includes(status)) {
+        return res.status(400).json({ message: "Invalid status value" });
+      }
+      
+      const order = await storage.getOrder(orderId);
+      
+      if (!order) {
+        return res.status(404).json({ message: "Order not found" });
+      }
+      
+      // In a real application, you would check if the user is an admin here
+      // For this demo, we'll allow any authenticated user to update order status
+      
+      // Update order status
+      const updatedOrder = await storage.updateOrderStatus(orderId, status);
+      
+      // If order is being delivered, mark it as paid
+      if (status === 'delivered' && !order.paid) {
+        // In a real app, you would release payment to the seller here
+        await storage.updateOrder(orderId, { paid: true });
+      }
+      
+      res.json(updatedOrder);
+    } catch (error) {
+      res.status(500).json({ message: error.message });
+    }
+  });
 
   // Returns
   app.get("/api/returns", isAuthenticated, async (req, res) => {
