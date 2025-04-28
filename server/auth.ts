@@ -47,17 +47,24 @@ export function setupAuth(app: Express) {
   // Configure local strategy
   passport.use(
     new LocalStrategy(
-      { usernameField: "email" },
-      async (email, password, done) => {
+      { usernameField: "username" },
+      async (username, password, done) => {
         try {
-          const user = await storage.getUserByEmail(email);
+          // Try to find by username or email (support both)
+          let user = await storage.getUserByUsername(username);
+          
+          // If not found by username, try email
           if (!user) {
-            return done(null, false, { message: "Incorrect email or password" });
+            user = await storage.getUserByEmail(username);
+          }
+          
+          if (!user) {
+            return done(null, false, { message: "Incorrect username/email or password" });
           }
           
           const passwordMatch = await comparePasswords(password, user.password);
           if (!passwordMatch) {
-            return done(null, false, { message: "Incorrect email or password" });
+            return done(null, false, { message: "Incorrect username/email or password" });
           }
           
           return done(null, user);
