@@ -16,6 +16,7 @@ export const users = pgTable("users", {
   id: serial("id").primaryKey(),
   name: text("name").notNull(),
   email: text("email").notNull().unique(),
+  username: text("username").notNull(),
   password: text("password").notNull(),
   walletBalance: decimal("wallet_balance", { precision: 10, scale: 2 }).default("0").notNull(),
   phone: text("phone"),
@@ -98,6 +99,7 @@ export const loginSchema = z.object({
 export const registerSchema = z.object({
   name: z.string().min(2),
   email: z.string().email(),
+  username: z.string().min(4).optional(),
   password: z.string().min(6),
 });
 

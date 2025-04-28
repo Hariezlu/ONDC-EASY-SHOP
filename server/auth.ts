@@ -91,7 +91,7 @@ export function setupAuth(app: Express) {
   // Auth routes
   app.post("/api/register", async (req, res, next) => {
     try {
-      const { name, email, password } = req.body as RegisterInput;
+      const { name, email, username, password } = req.body;
       
       // Check if user already exists
       const existingUser = await storage.getUserByEmail(email);
@@ -104,6 +104,7 @@ export function setupAuth(app: Express) {
       const user = await storage.createUser({
         name,
         email,
+        username: username || email, // Use username if provided, otherwise use email
         password: hashedPassword,
       });
       
