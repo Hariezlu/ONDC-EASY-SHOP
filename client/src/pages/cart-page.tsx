@@ -42,7 +42,10 @@ export default function CartPage() {
 
   // Calculate total
   const cartTotal = cartItems?.reduce((total, item) => {
-    return total + (parseFloat(item.product?.price || "0") * (item.quantity || 0));
+    // Make sure we have a valid product price and quantity
+    const price = item.product && item.product.price ? parseFloat(item.product.price) : 0;
+    const quantity = item.quantity || 1;
+    return total + (price * quantity);
   }, 0) || 0;
 
   // Remove from cart mutation
@@ -229,7 +232,11 @@ export default function CartPage() {
                           </Button>
                         </div>
                         <div className="font-medium">
-                          ${(parseFloat(item.product?.price || "0") * (item.quantity || 0)).toFixed(2)}
+                          ${(() => {
+                            const price = item.product && item.product.price ? parseFloat(item.product.price) : 0;
+                            const quantity = item.quantity || 1;
+                            return (price * quantity).toFixed(2);
+                          })()}
                         </div>
                       </div>
                     </div>

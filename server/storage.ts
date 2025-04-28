@@ -493,9 +493,24 @@ export class MemStorage implements IStorage {
     const cartItem = this.cartItems.get(id);
     if (!cartItem) return undefined;
     
-    const product = this.getProduct(cartItem.productId) as Product;
-    const shop = this.shops.get(cartItem.shopId) as Shop;
-    return { ...cartItem, product, shop };
+    // Get product with brand data
+    const product = await this.getProduct(cartItem.productId);
+    const shop = this.shops.get(cartItem.shopId || 1);
+    return { 
+      ...cartItem, 
+      product: product || { 
+        id: cartItem.productId, 
+        name: 'Product Unknown',
+        price: '0.00'
+      }, 
+      shop: shop || { 
+        id: cartItem.shopId || 1, 
+        name: 'Shop Unknown',
+        createdAt: new Date(),
+        description: null,
+        location: null
+      } 
+    };
   }
   
   async createCartItem(cartItemData: InsertCartItem): Promise<CartItem> {
@@ -504,9 +519,24 @@ export class MemStorage implements IStorage {
     const cartItem = { ...cartItemData, id, createdAt: timestamp } as CartItem;
     this.cartItems.set(id, cartItem);
     
-    const product = this.getProduct(cartItem.productId) as Product;
-    const shop = this.shops.get(cartItem.shopId) as Shop;
-    return { ...cartItem, product, shop };
+    // Get product with brand data
+    const product = await this.getProduct(cartItem.productId);
+    const shop = this.shops.get(cartItem.shopId || 1);
+    return { 
+      ...cartItem, 
+      product: product || { 
+        id: cartItem.productId, 
+        name: 'Product Unknown',
+        price: '0.00'
+      }, 
+      shop: shop || { 
+        id: cartItem.shopId || 1, 
+        name: 'Shop Unknown',
+        createdAt: new Date(),
+        description: null,
+        location: null
+      } 
+    };
   }
   
   async updateCartItem(id: number, cartItemData: Partial<CartItem>): Promise<CartItem | undefined> {
@@ -516,9 +546,24 @@ export class MemStorage implements IStorage {
     const updatedCartItem = { ...cartItem, ...cartItemData };
     this.cartItems.set(id, updatedCartItem);
     
-    const product = this.getProduct(updatedCartItem.productId) as Product;
-    const shop = this.shops.get(updatedCartItem.shopId) as Shop;
-    return { ...updatedCartItem, product, shop };
+    // Get product with brand data
+    const product = await this.getProduct(updatedCartItem.productId);
+    const shop = this.shops.get(updatedCartItem.shopId || 1);
+    return { 
+      ...updatedCartItem, 
+      product: product || { 
+        id: updatedCartItem.productId, 
+        name: 'Product Unknown',
+        price: '0.00'
+      }, 
+      shop: shop || { 
+        id: updatedCartItem.shopId || 1, 
+        name: 'Shop Unknown',
+        createdAt: new Date(),
+        description: null,
+        location: null
+      } 
+    };
   }
   
   async deleteCartItem(id: number): Promise<boolean> {
