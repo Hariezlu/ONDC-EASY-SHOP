@@ -19,14 +19,14 @@ import { useToast } from "@/hooks/use-toast";
 import { apiRequest } from "@/lib/queryClient";
 
 const loginSchema = z.object({
-  username: z.string().email({ message: "Please enter a valid email address" }),
+  username: z.string().min(4, { message: "Username or email must be at least 4 characters" }),
   password: z.string().min(6, { message: "Password must be at least 6 characters" }),
 });
 
 const registerSchema = z.object({
   name: z.string().min(2, { message: "Name must be at least 2 characters" }),
   email: z.string().email({ message: "Please enter a valid email address" }),
-  username: z.string().email({ message: "Please enter a valid email address" }),
+  username: z.string().min(4, { message: "Username must be at least 4 characters" }),
   password: z.string().min(6, { message: "Password must be at least 6 characters" }),
   confirmPassword: z.string(),
 }).refine(data => data.password === data.confirmPassword, {
@@ -94,7 +94,7 @@ export default function AuthPage() {
       await apiRequest("POST", "/api/register", {
         name: data.name,
         email: data.email,
-        username: data.email, // Use email as username for login
+        username: data.username,
         password: data.password,
       });
       
@@ -201,6 +201,20 @@ export default function AuthPage() {
                         <FormLabel>Email</FormLabel>
                         <FormControl>
                           <Input placeholder="your.email@example.com" {...field} />
+                        </FormControl>
+                        <FormMessage />
+                      </FormItem>
+                    )}
+                  />
+
+                  <FormField
+                    control={registerForm.control}
+                    name="username"
+                    render={({ field }) => (
+                      <FormItem>
+                        <FormLabel>Username</FormLabel>
+                        <FormControl>
+                          <Input placeholder="yourname" {...field} />
                         </FormControl>
                         <FormMessage />
                       </FormItem>
