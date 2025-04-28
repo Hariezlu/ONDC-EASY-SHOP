@@ -173,7 +173,14 @@ export default function ProfileDetails({ activeTab, user }: ProfileDetailsProps)
             </Card>
           ) : (
             <div className="space-y-4">
-              {orders.map((order) => (
+              <div className="flex justify-between items-center mb-2">
+                <h4 className="font-medium">Recent Orders</h4>
+                <Button asChild variant="link" className="text-primary">
+                  <Link to="/orders">View All Orders</Link>
+                </Button>
+              </div>
+              
+              {orders.slice(0, 3).map((order) => (
                 <Card key={order.id}>
                   <CardContent className="p-6">
                     <div className="flex justify-between items-center mb-4">
@@ -228,6 +235,14 @@ export default function ProfileDetails({ activeTab, user }: ProfileDetailsProps)
                   </CardContent>
                 </Card>
               ))}
+              
+              {orders.length > 3 && (
+                <div className="text-center pt-2">
+                  <Button asChild variant="outline" className="w-full">
+                    <Link to="/orders">View All {orders.length} Orders</Link>
+                  </Button>
+                </div>
+              )}
             </div>
           )}
         </TabsContent>

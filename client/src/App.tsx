@@ -28,6 +28,7 @@ function Router() {
         <Route path="/products" component={ProductsPage} />
         <Route path="/product/:id" component={ProductPage} />
         <Route path="/order/:id" component={OrderPage} />
+        <Route path="/orders" component={OrderPage} />
         <Route path="/cart" component={CartPage} />
         <ProtectedRoute path="/checkout" component={CheckoutPage} />
         <ProtectedRoute path="/profile" component={ProfilePage} />
