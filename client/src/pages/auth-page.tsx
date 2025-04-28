@@ -26,6 +26,7 @@ const loginSchema = z.object({
 const registerSchema = z.object({
   name: z.string().min(2, { message: "Name must be at least 2 characters" }),
   email: z.string().email({ message: "Please enter a valid email address" }),
+  username: z.string().email({ message: "Please enter a valid email address" }),
   password: z.string().min(6, { message: "Password must be at least 6 characters" }),
   confirmPassword: z.string(),
 }).refine(data => data.password === data.confirmPassword, {
@@ -56,6 +57,7 @@ export default function AuthPage() {
     defaultValues: {
       name: "",
       email: "",
+      username: "",
       password: "",
       confirmPassword: "",
     },
@@ -92,6 +94,7 @@ export default function AuthPage() {
       await apiRequest("POST", "/api/register", {
         name: data.name,
         email: data.email,
+        username: data.email, // Use email as username for login
         password: data.password,
       });
       
@@ -133,7 +136,7 @@ export default function AuthPage() {
                 <form onSubmit={loginForm.handleSubmit(onLogin)} className="space-y-6">
                   <FormField
                     control={loginForm.control}
-                    name="email"
+                    name="username"
                     render={({ field }) => (
                       <FormItem>
                         <FormLabel>Email</FormLabel>
