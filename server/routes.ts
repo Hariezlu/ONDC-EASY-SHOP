@@ -214,14 +214,21 @@ export async function registerRoutes(app: Express): Promise<Server> {
       // Create orders for each cart item
       const orders = [];
       for (const item of cartItems) {
+        // Delivery date is 7 days from now
+        const deliveryDate = new Date(Date.now() + 7 * 24 * 60 * 60 * 1000);
+        // Return expiry date is 30 days from delivery
+        const returnExpiryDate = new Date(deliveryDate.getTime() + 30 * 24 * 60 * 60 * 1000);
+        
         const orderData = {
           userId: req.user.id,
           productId: item.productId,
           shopId: item.shopId,
           quantity: item.quantity,
-          price: item.product.price,
-          size: item.size,
-          deliveryDate: item.deliveryDate || new Date(Date.now() + 7 * 24 * 60 * 60 * 1000), // Default: 7 days from now
+          // Ensure price is a string
+          price: String(item.product.price),
+          size: item.size || null,
+          deliveryDate: deliveryDate,
+          returnExpiryDate: returnExpiryDate,
           status: 'pending',
           paid: false
         };
