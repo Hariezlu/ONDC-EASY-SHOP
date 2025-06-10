@@ -2,7 +2,11 @@ import type { Express } from "express";
 import { createServer, type Server } from "http";
 import { storage } from "./storage";
 import { setupAuth } from "./auth";
-import { insertCartItemSchema, insertOrderSchema, insertReturnSchema } from "@shared/schema";
+import {
+  insertCartItemSchema,
+  insertOrderSchema,
+  insertReturnSchema,
+} from "@shared/schema";
 
 export async function registerRoutes(app: Express): Promise<Server> {
   // Set up authentication
@@ -44,13 +48,15 @@ export async function registerRoutes(app: Express): Promise<Server> {
     try {
       const { brandId } = req.query;
       let products;
-      
+
       if (brandId) {
-        products = await storage.getProductsByBrand(parseInt(brandId as string));
+        products = await storage.getProductsByBrand(
+          parseInt(brandId as string)
+        );
       } else {
         products = await storage.getProducts();
       }
-      
+
       res.json(products);
     } catch (error) {
       res.status(500).json({ message: error.message });
@@ -82,6 +88,7 @@ export async function registerRoutes(app: Express): Promise<Server> {
   // Cart
   app.get("/api/cart", isAuthenticated, async (req, res) => {
     try {
+      console.log("flag-1");
       const cartItems = await storage.getCartItems(req.user.id);
       res.json(cartItems);
     } catch (error) {
@@ -91,24 +98,18 @@ export async function registerRoutes(app: Express): Promise<Server> {
 
   app.post("/api/cart", isAuthenticated, async (req, res) => {
     try {
-      const validation = insertCartItemSchema.safeParse(req.body);
-      if (!validation.success) {
-        return res.status(400).json({ message: "Invalid cart item data", errors: validation.error.format() });
-      }
-      
-      // Make sure product exists
-      const product = await storage.getProduct(validation.data.productId);
+      const { productId, quantity, size, shopId } = req.body;
+      const payload = req.body;
+      const product = await storage.getProduct(payload.productId);
       if (!product) {
         return res.status(400).json({ message: "Product not found" });
       }
-      
-      // If shopId is not provided, set it to a default shop (1)
       const cartItemData = {
-        ...validation.data,
+        ...payload,
         userId: req.user.id,
-        shopId: validation.data.shopId || 1
+        shopId: payload.shopId || 1,
       };
-      
+
       const cartItem = await storage.createCartItem(cartItemData);
       res.status(201).json(cartItem);
     } catch (error) {
@@ -118,17 +119,23 @@ export async function registerRoutes(app: Express): Promise<Server> {
 
   app.patch("/api/cart/:id", isAuthenticated, async (req, res) => {
     try {
+      console.log("flag-3");
       const cartItem = await storage.getCartItem(parseInt(req.params.id));
-      
+
       if (!cartItem) {
         return res.status(404).json({ message: "Cart item not found" });
       }
-      
+
       if (cartItem.userId !== req.user.id) {
-        return res.status(403).json({ message: "Not authorized to update this item" });
+        return res
+          .status(403)
+          .json({ message: "Not authorized to update this item" });
       }
-      
-      const updatedCartItem = await storage.updateCartItem(cartItem.id, req.body);
+
+      const updatedCartItem = await storage.updateCartItem(
+        cartItem.id,
+        req.body
+      );
       res.json(updatedCartItem);
     } catch (error) {
       res.status(500).json({ message: error.message });
@@ -137,16 +144,19 @@ export async function registerRoutes(app: Express): Promise<Server> {
 
   app.delete("/api/cart/:id", isAuthenticated, async (req, res) => {
     try {
+      console.log("flag-4");
       const cartItem = await storage.getCartItem(parseInt(req.params.id));
-      
+
       if (!cartItem) {
         return res.status(404).json({ message: "Cart item not found" });
       }
-      
+
       if (cartItem.userId !== req.user.id) {
-        return res.status(403).json({ message: "Not authorized to remove this item" });
+        return res
+          .status(403)
+          .json({ message: "Not authorized to remove this item" });
       }
-      
+
       await storage.deleteCartItem(cartItem.id);
       res.json({ message: "Cart item removed" });
     } catch (error) {
@@ -156,6 +166,7 @@ export async function registerRoutes(app: Express): Promise<Server> {
 
   app.delete("/api/cart", isAuthenticated, async (req, res) => {
     try {
+      console.log("flag-5");
       await storage.clearCart(req.user.id);
       res.json({ message: "Cart cleared successfully" });
     } catch (error) {
@@ -176,15 +187,17 @@ export async function registerRoutes(app: Express): Promise<Server> {
   app.get("/api/orders/:id", isAuthenticated, async (req, res) => {
     try {
       const order = await storage.getOrder(parseInt(req.params.id));
-      
+
       if (!order) {
         return res.status(404).json({ message: "Order not found" });
       }
-      
+
       if (order.userId !== req.user.id) {
-        return res.status(403).json({ message: "Not authorized to view this order" });
+        return res
+          .status(403)
+          .json({ message: "Not authorized to view this order" });
       }
-      
+
       res.json(order);
     } catch (error) {
       res.status(500).json({ message: error.message });
@@ -195,30 +208,35 @@ export async function registerRoutes(app: Express): Promise<Server> {
     try {
       // Get cart items to create order
       const cartItems = await storage.getCartItems(req.user.id);
-      
+
       if (!cartItems.length) {
         return res.status(400).json({ message: "Cart is empty" });
       }
-      
+
       // Check wallet balance
       const user = await storage.getUser(req.user.id);
-      const totalAmount = cartItems.reduce((sum, item) => sum + (Number(item.product.price) * item.quantity), 0);
-      
+      const totalAmount = cartItems.reduce(
+        (sum, item) => sum + Number(item.product.price) * item.quantity,
+        0
+      );
+
       if (Number(user.walletBalance) < totalAmount) {
         return res.status(400).json({ message: "Insufficient wallet balance" });
       }
-      
+
       // Deduct from wallet
       await storage.deductFromWallet(req.user.id, totalAmount);
-      
+
       // Create orders for each cart item
       const orders = [];
       for (const item of cartItems) {
         // Delivery date is 7 days from now
         const deliveryDate = new Date(Date.now() + 7 * 24 * 60 * 60 * 1000);
         // Return expiry date is 30 days from delivery
-        const returnExpiryDate = new Date(deliveryDate.getTime() + 30 * 24 * 60 * 60 * 1000);
-        
+        const returnExpiryDate = new Date(
+          deliveryDate.getTime() + 30 * 24 * 60 * 60 * 1000
+        );
+
         const orderData = {
           userId: req.user.id,
           productId: item.productId,
@@ -229,24 +247,27 @@ export async function registerRoutes(app: Express): Promise<Server> {
           size: item.size || null,
           deliveryDate: deliveryDate,
           returnExpiryDate: returnExpiryDate,
-          status: 'pending',
-          paid: false
+          status: "pending",
+          paid: false,
         };
-        
+
         const validation = insertOrderSchema.safeParse(orderData);
         if (!validation.success) {
           // Refund the wallet and return error
           await storage.addToWallet(req.user.id, totalAmount);
-          return res.status(400).json({ message: "Invalid order data", errors: validation.error.format() });
+          return res.status(400).json({
+            message: "Invalid order data",
+            errors: validation.error.format(),
+          });
         }
-        
+
         const order = await storage.createOrder(orderData);
         orders.push(order);
       }
-      
+
       // Clear the cart
       await storage.clearCart(req.user.id);
-      
+
       res.status(201).json({ orders });
     } catch (error) {
       res.status(500).json({ message: error.message });
@@ -256,59 +277,79 @@ export async function registerRoutes(app: Express): Promise<Server> {
   app.patch("/api/orders/:id/cancel", isAuthenticated, async (req, res) => {
     try {
       const order = await storage.getOrder(parseInt(req.params.id));
-      
+
       if (!order) {
         return res.status(404).json({ message: "Order not found" });
       }
-      
+
       if (order.userId !== req.user.id) {
-        return res.status(403).json({ message: "Not authorized to cancel this order" });
+        return res
+          .status(403)
+          .json({ message: "Not authorized to cancel this order" });
       }
-      
-      if (order.status !== 'pending') {
-        return res.status(400).json({ message: "Only pending orders can be cancelled" });
+
+      if (order.status !== "pending") {
+        return res
+          .status(400)
+          .json({ message: "Only pending orders can be cancelled" });
       }
-      
+
       // Update order status
-      const updatedOrder = await storage.updateOrderStatus(order.id, 'cancelled');
-      
+      const updatedOrder = await storage.updateOrderStatus(
+        order.id,
+        "cancelled"
+      );
+
       // Refund the amount to wallet
-      await storage.addToWallet(req.user.id, Number(order.price) * order.quantity);
-      
+      await storage.addToWallet(
+        req.user.id,
+        Number(order.price) * order.quantity
+      );
+
       res.json(updatedOrder);
     } catch (error) {
       res.status(500).json({ message: error.message });
     }
   });
-  
+
   // New endpoint for admin to update order status
   app.patch("/api/orders/:id/status", isAuthenticated, async (req, res) => {
     try {
       const { status } = req.body;
       const orderId = parseInt(req.params.id);
-      
-      if (!status || !['pending', 'processing', 'shipped', 'delivered', 'completed', 'cancelled'].includes(status)) {
+
+      if (
+        !status ||
+        ![
+          "pending",
+          "processing",
+          "shipped",
+          "delivered",
+          "completed",
+          "cancelled",
+        ].includes(status)
+      ) {
         return res.status(400).json({ message: "Invalid status value" });
       }
-      
+
       const order = await storage.getOrder(orderId);
-      
+
       if (!order) {
         return res.status(404).json({ message: "Order not found" });
       }
-      
+
       // In a real application, you would check if the user is an admin here
       // For this demo, we'll allow any authenticated user to update order status
-      
+
       // Update order status
       const updatedOrder = await storage.updateOrderStatus(orderId, status);
-      
+
       // If order is being delivered, mark it as paid
-      if (status === 'delivered' && !order.paid) {
+      if (status === "delivered" && !order.paid) {
         // In a real app, you would release payment to the seller here
         await storage.updateOrder(orderId, { paid: true });
       }
-      
+
       res.json(updatedOrder);
     } catch (error) {
       res.status(500).json({ message: error.message });
@@ -329,42 +370,49 @@ export async function registerRoutes(app: Express): Promise<Server> {
     try {
       const validation = insertReturnSchema.safeParse(req.body);
       if (!validation.success) {
-        return res.status(400).json({ message: "Invalid return data", errors: validation.error.format() });
+        return res.status(400).json({
+          message: "Invalid return data",
+          errors: validation.error.format(),
+        });
       }
-      
+
       const { orderId, reason } = validation.data;
-      
+
       // Check if order exists and belongs to the user
       const order = await storage.getOrder(orderId);
-      
+
       if (!order) {
         return res.status(404).json({ message: "Order not found" });
       }
-      
+
       if (order.userId !== req.user.id) {
-        return res.status(403).json({ message: "Not authorized to return this order" });
+        return res
+          .status(403)
+          .json({ message: "Not authorized to return this order" });
       }
-      
+
       // Check if order is delivered and within return period
-      if (order.status !== 'delivered') {
-        return res.status(400).json({ message: "Only delivered orders can be returned" });
+      if (order.status !== "delivered") {
+        return res
+          .status(400)
+          .json({ message: "Only delivered orders can be returned" });
       }
-      
+
       const now = new Date();
       const returnExpiryDate = new Date(order.returnExpiryDate);
-      
+
       if (now > returnExpiryDate) {
         return res.status(400).json({ message: "Return period has expired" });
       }
-      
+
       // Create return
       const returnData = {
         orderId,
         reason,
-        status: 'requested',
-        refundAmount: order.price
+        status: "requested",
+        refundAmount: order.price,
       };
-      
+
       const returnItem = await storage.createReturn(returnData);
       res.status(201).json(returnItem);
     } catch (error) {
@@ -385,25 +433,26 @@ export async function registerRoutes(app: Express): Promise<Server> {
 
   app.post("/api/wallet/add", isAuthenticated, async (req, res) => {
     try {
-      const { amount } = req.body;
-      
+      console.log("Adding to wallet:", req.body);
+      const { amount, type } = req.body;
+
       if (isNaN(amount) || amount <= 0) {
         return res.status(400).json({ message: "Invalid amount" });
       }
-      
-      const user = await storage.addToWallet(req.user.id, Number(amount));
-      
+
+      const user = await storage.addToWallet(req.user.id, Number(amount), type);
+
       if (!user) {
         return res.status(404).json({ message: "User not found" });
       }
-      
+
       const { password: _, ...userWithoutPassword } = user;
       res.json(userWithoutPassword);
     } catch (error) {
       res.status(500).json({ message: error.message });
     }
   });
-  
+
   // For addresses (mock)
   app.get("/api/addresses", isAuthenticated, async (req, res) => {
     // Return a mock address for this demo
@@ -420,7 +469,7 @@ export async function registerRoutes(app: Express): Promise<Server> {
         zip: "10001",
         country: "United States",
         phone: "+1 (123) 456-7890",
-      }
+      },
     ]);
   });
 

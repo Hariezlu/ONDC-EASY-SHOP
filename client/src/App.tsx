@@ -4,6 +4,7 @@ import { TooltipProvider } from "@/components/ui/tooltip";
 import NotFound from "@/pages/not-found";
 import { ProtectedRoute } from "./lib/protected-route";
 import HomePage from "@/pages/home-page";
+import ChatBot from "./components/ChatBot";
 import AuthPage from "@/pages/auth-page";
 import ProductPage from "@/pages/product-page";
 import ProductsPage from "@/pages/products-page";
@@ -46,6 +47,10 @@ function App() {
       <AuthProvider>
         <TooltipProvider>
           <Toaster />
+          <div>
+            {/* Other components */}
+            <ChatBot />
+          </div>
           <Router />
         </TooltipProvider>
       </AuthProvider>

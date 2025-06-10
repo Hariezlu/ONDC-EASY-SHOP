@@ -48,14 +48,18 @@ export default function ProductDetails({ productId }: ProductDetailsProps) {
       if (!selectedShop || !selectedSize) {
         throw new Error("Please select a shop and size");
       }
-      
-      await apiRequest("POST", "/api/cart", {
+
+      const payload = {
         productId,
         shopId: selectedShop,
         quantity,
         size: selectedSize,
-        deliveryDate
-      });
+        deliveryDate,
+      };
+
+      console.log("Payload:", payload);
+
+      await apiRequest("POST", "/api/cart", payload);
     },
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: ["/api/cart"] });
@@ -180,7 +184,7 @@ export default function ProductDetails({ productId }: ProductDetailsProps) {
               <img
                 src={product.imageUrl}
                 alt={product.name}
-                className="w-full h-full object-cover"
+                className="w-full h-full"
               />
             ) : (
               <div className="w-full h-full flex items-center justify-center bg-gray-200 text-gray-400">
@@ -328,14 +332,14 @@ export default function ProductDetails({ productId }: ProductDetailsProps) {
             >
               Add to Cart
             </Button>
-            <Button
+            {/* <Button
               variant="outline"
               className="border border-gray-300 text-gray-700"
               onClick={() => buyNowMutation.mutate()}
               disabled={buyNowMutation.isPending || !selectedSize || !selectedShop}
             >
               Buy Now
-            </Button>
+            </Button> */}
           </div>
 
           <div className="border-t border-gray-200 mt-8 pt-6">
